@@ -35,7 +35,7 @@ try:
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
 except serial.SerialException:
     try:
-        ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
+        ser = serial.Serial('/dev/serial0', 115200, timeout=1)
     except serial.SerialException:
         try:
             ser = serial.Serial('COM8', 115200, timeout=1)
