@@ -1,0 +1,1 @@
+myURL='https://api.darksky.net/forecast/<your key>/<your lattitude in degrees>,<your longitude in degrees>'
