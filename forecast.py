@@ -2,7 +2,7 @@
 
 from json import loads
 from urllib2 import urlopen
-from time import sleep
+from time import sleep, time
 from datetime import datetime
 import serial
 import random
@@ -31,13 +31,17 @@ def doPercent(i):
     return str(int(round(i*100)))
 
 ###### Main program #########
-
 try:
-#    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
-    ser = serial.Serial('COM8', 115200, timeout=1)
+    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
 except serial.SerialException:
-        print("Serial port not found")
-        exit()
+    try:
+        ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
+    except serial.SerialException:
+        try:
+            ser = serial.Serial('COM8', 115200, timeout=1)
+        except serial.SerialException:
+                print("Serial port not found")
+                exit()
 
 
 while True:
@@ -136,5 +140,15 @@ while True:
         ser.write('cle 4,255'+'\xFF\xFF\xFF') # clear graph display
         ser.write('t0.txt=""\xFF\xFF\xFF')
         ser.write('t1.txt=""\xFF\xFF\xFF')
+        ser.write('g0.txt=""\xFF\xFF\xFF')
         ser.write('t2.txt="forecast unavailable"\xFF\xFF\xFF')
         sleep(5)
+    except KeyError:
+        print("weather data bad format")
+        ser.write('cle 4,255'+'\xFF\xFF\xFF') # clear graph display
+        ser.write('t0.txt=""\xFF\xFF\xFF')
+        ser.write('t1.txt=""\xFF\xFF\xFF')
+        ser.write('g0.txt=""\xFF\xFF\xFF')
+        ser.write('t2.txt="weather data error"\xFF\xFF\xFF')
+        sleep(300) # try again in five minuits
+
