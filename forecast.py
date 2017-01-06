@@ -1,8 +1,9 @@
 #! /usr/bin/python
 
 from json import loads
-from urllib import urlopen
+from urllib2 import urlopen
 from time import sleep
+from datetime import datetime
 import serial
 import random
 try:
@@ -55,6 +56,8 @@ while True:
         timeNow = forecast['currently']['time']
 
         print "summary: "+forecast['hourly']['summary']
+        #print forecast['hourly']['summary'].encode('ascii','ignore')
+        ser.write('g0.txt="Summary: '+forecast['hourly']['summary'].encode('ascii','ignore')+'"\xFF\xFF\xFF')
 
         hourly = forecast['hourly']['data']
 
@@ -79,7 +82,7 @@ while True:
         # Now populate the graph
         graphData=[]
         for hour in hourly:
-            graphData.insert(0,hour['precipProbability'])
+            graphData.insert(0,[hour['precipProbability'],hour['time']])
 
         ser.write('cle 4,255'+'\xFF\xFF\xFF') # clear graph display
 
@@ -89,14 +92,25 @@ while True:
         # graph channel 3 - black (used for ticks)
         # higer channels overwrite lower ones
 
-        # write the ticks
-        for i in range(48):
-            ser.write('add 4,3,5'+'\xFF\xFF\xFF')
-            for j in range(5):
-                ser.write('add 4,3,0'+'\xFF\xFF\xFF')
             
 
-        for v in graphData:
+        for d in graphData:
+            v=d[0]
+            t=datetime.fromtimestamp(d[1]).strftime('%H') # extract just the hours
+
+            # write the ticks, with bigger ones for midday and midnight
+
+            for j in range(5):
+                ser.write('add 4,3,0'+'\xFF\xFF\xFF')
+
+            if t == "00":
+                ser.write('add 4,3,18'+'\xFF\xFF\xFF')
+            elif t == "12":
+                ser.write('add 4,3,8'+'\xFF\xFF\xFF')
+            else:
+                ser.write('add 4,3,3'+'\xFF\xFF\xFF')
+
+
             #v=random.random() # generate test data
             for i in range(3):
                 ser.write('add 4,0,'+str(v*50)+'\xFF\xFF\xFF') # green
