@@ -43,6 +43,10 @@ except serial.SerialException:
                 print("Serial port not found")
                 exit()
 
+# set up sleep and wake settings...
+ser.write('thsp=30\xFF\xFF\xFF')   
+ser.write('thup=1\xFF\xFF\xFF')   
+
 
 while True:
     try:
