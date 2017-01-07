@@ -64,8 +64,9 @@ while True:
         timeNow = forecast['currently']['time']
 
         print "summary: "+forecast['hourly']['summary']
+        print "humidity: "+doPercent(forecast['currently']['humidity'])+"%"
         #print forecast['hourly']['summary'].encode('ascii','ignore')
-        ser.write('g0.txt="Summary: '+forecast['hourly']['summary'].encode('ascii','ignore')+'"\xFF\xFF\xFF')
+        ser.write('g0.txt="Summary: '+forecast['hourly']['summary'].encode('ascii','ignore')+" Current humidity: "+doPercent(forecast['currently']['humidity'])+"%"+'"\xFF\xFF\xFF')
 
         hourly = forecast['hourly']['data']
 
