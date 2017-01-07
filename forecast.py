@@ -33,17 +33,21 @@ def doPercent(i):
 ###### Main program #########
 try:
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
+    print "Using /dev/ttyUSB0"
 except serial.SerialException:
     try:
         ser = serial.Serial('/dev/serial0', 115200, timeout=1)
+        print "Using /dev/serial0"
     except serial.SerialException:
         try:
             ser = serial.Serial('COM8', 115200, timeout=1)
+            print "Using COM8"
         except serial.SerialException:
                 print("Serial port not found")
                 exit()
 
 # set up sleep and wake settings...
+ser.write('sleep=0\xFF\xFF\xFF')
 ser.write('thsp=30\xFF\xFF\xFF')   
 ser.write('thup=1\xFF\xFF\xFF')   
 
@@ -52,7 +56,8 @@ while True:
     try:
         forecastFile = urlopen(myURL)
 
-        ser.write('t0.txt="hrs"\xFF\xFF\xFF')
+        ser.write('sleep=0\xFF\xFF\xFF')
+        ser.write('t0.txt="hr"\xFF\xFF\xFF')
 
         forecastRaw = forecastFile.read()
         forecastFile.close()
