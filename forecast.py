@@ -31,6 +31,10 @@ def doPercent(i):
     return str(int(round(i*100)))
 
 ###### Main program #########
+print "\nKimbeau Acme Forecaster v1.0.0"
+print "##############################\n"
+
+
 try:
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
     print "Using /dev/ttyUSB0"
