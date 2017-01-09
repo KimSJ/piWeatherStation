@@ -119,7 +119,7 @@ while True:
               + "%" + '"\xFF\xFF\xFF')
 
         hourly = forecast['hourly']['data']
-        timeNow = hourly[1]['time']
+        timeNow = hourly[0]['time']
 
         rainExpected = -1
         for hour in hourly:
@@ -128,9 +128,8 @@ while True:
                 #continue
                 rainExpected = offsetHours
                 break
-            # print str(offsetHours)+": "+doPercent(hour['precipProbability'])
 
-        if (rainExpected>0):
+        if (rainExpected > -1):
             print "Rain expected in "+str(rainExpected)+ " hours"
             ser.write('t1.txt="'+str(rainExpected)+'"\xFF\xFF\xFF')
             ser.write('t2.txt="until rain likely"\xFF\xFF\xFF')   
