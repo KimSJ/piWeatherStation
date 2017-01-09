@@ -92,10 +92,6 @@ idle_count=0 # counting roughly tenths of seconds until screen dim
 while True:
     try:
         forecastFile = urlopen(myURL)
-
-        ser.write('sleep=0\xFF\xFF\xFF')
-        ser.write('t0.txt="hr"\xFF\xFF\xFF')
-
         forecastRaw = forecastFile.read()
         forecastFile.close()
 
@@ -129,14 +125,18 @@ while True:
                 rainExpected = offsetHours
                 break
 
+        ser.write('t0.txt="hrs"\xFF\xFF\xFF')
         if (rainExpected > -1):
             print "Rain expected in "+str(rainExpected)+ " hours"
             ser.write('t1.txt="'+str(rainExpected)+'"\xFF\xFF\xFF')
-            ser.write('t2.txt="until rain likely"\xFF\xFF\xFF')   
-        else:
+            ser.write('t2.txt="until rain likely"\xFF\xFF\xFF')
+            if (rainExpected < 2):
+                ser.write('t0.txt="hr"\xFF\xFF\xFF')
+          else:
             ser.write('t1.txt=">48"\xFF\xFF\xFF')
             ser.write('t2.txt="no rain is likely"\xFF\xFF\xFF')
             print "No rain expected in next "+str(offsetHours+1)+" hours"
+
 
         ################# Now populate the graph ###################
         # data writen rightmost-point first, so has to be reversed
