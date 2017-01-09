@@ -61,6 +61,7 @@ except serial.SerialException:
         except serial.SerialException:
                 print("Serial port not found")
                 exit()
+ser.timeout=0.1
 
 # set up sleep and wake settings...
 
