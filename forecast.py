@@ -59,7 +59,7 @@ def get_response(raiseError=False):
 
 
 ###### Main program #########
-print "\nKimbeau Acme Forecaster v1.1.0"
+print "\nKimbeau Acme Forecaster v1.1.1"
 print "##############################\n"
 
 
@@ -106,7 +106,6 @@ while True:
             + "%"
             )
 
-        timeNow = forecast['currently']['time']
 
         print "summary: "+forecast['hourly']['summary']
         print("humidity: "
@@ -120,6 +119,7 @@ while True:
               + "%" + '"\xFF\xFF\xFF')
 
         hourly = forecast['hourly']['data']
+        timeNow = hourly[1]['time']
 
         rainExpected = -1
         for hour in hourly:
