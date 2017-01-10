@@ -13,7 +13,7 @@ except:
         + " starting from the myurl.sample.py example")
     exit()
 
-DEBUG = False
+DEBUG = True
 
 def to_hex_string(s):
     if len(s)==0:
@@ -102,9 +102,12 @@ ser.timeout=0.1
 
 # set up basic settings...
 # we can assume that sleep-on-idle is off at power-up
+if DEBUG: print("Writing reset")
 ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
 # pause needed before reset is complete
+if DEBUG: print("waiting for reset response")
 r=wait_response(0x88)
+if DEBUG: print("got for reset response")
 ser.write('sendxy=1\xFF\xFF\xFF') # turn on sending touch events
 
 idle_count=0 # counting roughly tenths of seconds until screen dim
