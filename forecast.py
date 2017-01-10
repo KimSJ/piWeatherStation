@@ -13,19 +13,29 @@ except:
         + " starting from the myurl.sample.py example")
     exit()
 
-#convert string to hex
-def toHex(s):
-    if len(s)==0:
-        return "Null"
+DEBUG = False
 
-    lst = []
+def to_hex_string(s):
+    if len(s)==0:
+        return ""
+    h=[]
     for ch in s:
-        hv = hex(ord(ch)).replace('0x', '')
-        if len(hv) == 1:
-            hv = '0'+hv
-        lst.append(hv)
+        h=h+[hex(ord(ch))]
+    return " ".join(h)
+
+#convert string to hex
+# def toHex(s):
+#     if len(s)==0:
+#         return "Null"
+
+#     lst = []
+#     for ch in s:
+#         hv = hex(ord(ch)).replace('0x', '')
+#         if len(hv) == 1:
+#             hv = '0'+hv
+#         lst.append(hv)
     
-    return reduce(lambda x,y:x+y, lst)
+#     return reduce(lambda x,y:x+y, lst)
 
 # print out as a percentage
 def doPercent(i):
@@ -46,6 +56,7 @@ def get_response(raiseError=False):
         else:
             count=0
         if count==3:
+            if DEBUG: print to_hex_string(s)
             return s
         if not c:
             if raiseError:
@@ -57,6 +68,16 @@ def get_response(raiseError=False):
             else:
                 return s
 
+def wait_response(returnedCode):
+    # keep reading responses until the one you want is received.
+    r=get_response()
+    while not r:
+        r=get_response()
+    while ord(r[0]) != returnedCode:
+        r=get_response()
+        while not r:
+            r=get_response()
+    return r
 
 ###### Main program #########
 print "\nKimbeau Acme Forecaster v1.1.1"
@@ -82,6 +103,8 @@ ser.timeout=0.1
 # set up basic settings...
 # we can assume that sleep-on-idle is off at power-up
 ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
+# pause needed before reset is complete
+r=wait_response(0x88)
 ser.write('sendxy=1\xFF\xFF\xFF') # turn on sending touch events
 
 idle_count=0 # counting roughly tenths of seconds until screen dim
