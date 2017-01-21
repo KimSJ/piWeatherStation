@@ -62,3 +62,7 @@ Add the following line to the system crontab (`sudo crontab -e`)
     @reboot /usr/bin/python /home/pi/piWeatherStation/forecast.py
 
 Now just reboot and you should be good to go.
+
+# Useful links
+
+https://www.itead.cc/wiki/Nextion_Instruction_Set
