@@ -1,15 +1,20 @@
 # piWeatherStation
 Use a Nextion display with a Raspberry Pi to display time to next rain, with data from api.darksky.net/forecast
 
+My use case is to tell me quickly how long I've got before I'm likely to need to bring the washing in.
+
+## Hardware
+
 The display I used was the small (2.8") basic display. You need to upload the image to the display. The Nextion software needed to do this only works on Windows, and needs a USB->5V serial adaptor. You'll find the required image (`Weather.HMI`) in the Nextion subdirectory of this repository.
 
-The Nextion connectors can be connected directly to the Pi Pins.
-## Register with darkSky
-Browse to https://darksky.net/dev/ and follow the instructions to get yourself a unique key for your use. You will need this as part of the URL you use to fetch data.
+As you'll see from the source code, I developed in a number of different configurations. The python code runs happily in Ubuntu, Windows or Raspbian. Using the USB serial adaptor, that appears as COM8 or /dev/ttyUSB0 on my dual-boot laptop, and as /dev/ttyUSB0 on Raspbian. Developing on the laptop is easier to start with (expecially when messing with the screen layout), and it can be tested using the USB on the Pi, but in the final version you'll want to connect direct to the Pi's serial port:
 
-## Find out the latitude and longitude of your location of interest
-Google maps uses lat and long to centre its maps, so that's one easy way. You need decimal degrees, not degrees, minutes, seconds.
+* pin 4: 5V
+* pin 6: GND
+* pin 8: (TxD on the Pi) -> RxD on the Nextion
+* pin 10: (RxD on the Pi) <- TxD on the Nextion
 
+You can connect the Nextion connector leads directly to the Pi's header.
 ## Pi software configuration
 The system runs Raspbian Lite, headless. Start with a standard install, and make the following changes:
 
