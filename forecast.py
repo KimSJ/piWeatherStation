@@ -6,6 +6,14 @@ from time import sleep, time
 from datetime import datetime
 import serial
 import random
+
+# intitalise logging
+import logging
+logging.basicConfig(filename='/home/pi/piWeatherStation/forecast.log', filemode = 'w', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+logger.info("forecast.py started")
+
 try:
     from myurl import myURL
 except:
