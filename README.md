@@ -59,9 +59,9 @@ The way I develop is to connect using ssh; to enable that on the pi, you can eit
 ### Auto-start the forecaster on boot
 Add the following line to the system crontab (`sudo crontab -e`)
 
-    @reboot /usr/bin/python /home/pi/piWeatherStation/forecast.py
+    @reboot /bin/sleep 20 && /usr/bin/python /home/pi/piWeatherStation/forecast.py
 
-Now just reboot and you should be good to go.
+Now just reboot and you should be good to go. I've not worked out why the pause is needed, but bad things happen if it's not there. :-(
 
 # Useful links
 
