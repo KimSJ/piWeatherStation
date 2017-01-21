@@ -65,4 +65,8 @@ Now just reboot and you should be good to go.
 
 # Useful links
 
-https://www.itead.cc/wiki/Nextion_Instruction_Set
+[Nextion_Instruction_Set](https://www.itead.cc/wiki/Nextion_Instruction_Set)
+
+[Element 14 info page](https://www.element14.com/community/community/arduino/blog/2016/02/22/nextion-hmi-display-a-user-interface-that-is-simple-and-easy-to-use)
+
+[Nextion product information](https://www.itead.cc/wiki/Nextion_HMI_Solution)
