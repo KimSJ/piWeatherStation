@@ -96,7 +96,43 @@ def wait_response(returnedCode):
     logging.debug("wait_reponse got correct response")
     return r
 
-###### Main program #########
+def do_screen_reset():
+    # ensure that screen is properly reset
+    resetNotDone=True
+    while resetNotDone:
+        resetTimeout=time()+5
+        if DEBUG: print("Sending screen reset")
+        ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
+
+        # pause needed before reset is complete
+        if DEBUG: print("waiting for reset response")
+        while resetTimeout<time():
+            # start by waiting for three \xFFs to ensure sync'd
+            s=""
+            while s != '\xFF\xFF\xFF' and time()<resetTimeout:
+                s = s[-2:]+ser.read() # add a new character on the end
+            if time()>=resetTimeout:
+                break
+            if ser.read() != '\x88':
+                continue # not the response we're hoping for -> look for sync again
+            #finally, look for the end of the reset confirmation
+            s=""
+            while s != '\xFF\xFF\xFF' and time()<resetTimeout:
+                s = s[-2:]+ser.read() # add a new character on the end
+            # we arrive here either timed-out or success
+            # so, if we've timed out, we need to do the whole thing again
+            if time()>=resetTimeout:
+                break
+            else:
+                logger.info("Successful reset")
+                return # yes! we got it OK
+
+
+
+################################
+######### Main program #########
+################################
+
 print "\nKimbeau Acme Forecaster v1.1.1"
 print "##############################\n"
 
@@ -121,14 +157,7 @@ except serial.SerialException:
                 exit()
 ser.timeout=0.1
 
-# set up basic settings...
-# we can assume that sleep-on-idle is off at power-up
-logger.info("Writing reset")
-ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
-# pause needed before reset is complete
-logger.info("Waiting for reset response")
-r=wait_response(0x88)
-logger.info("got for reset response")
+do_screen_reset()
 ser.write('sendxy=1\xFF\xFF\xFF') # turn on sending touch events
 
 idle_count=0 # counting roughly tenths of seconds until screen dim
