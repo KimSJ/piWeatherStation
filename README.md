@@ -47,7 +47,7 @@ There is also a modem manager process which wanders round at startup sending "he
 ### Turn off video
 Since the device works headless, you can save a little power by totally disabling the video. I added
 
-      @reboot tvservice -o
+      @reboot /opt/vc/bin/tvservice -o
 
 to the system crontab (edit it using `sudo crontab -e`)
 
