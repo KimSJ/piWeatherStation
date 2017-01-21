@@ -34,20 +34,6 @@ def to_hex_string(s):
         h=h+[hex(ord(ch))]
     return " ".join(h)
 
-#convert string to hex
-# def toHex(s):
-#     if len(s)==0:
-#         return "Null"
-
-#     lst = []
-#     for ch in s:
-#         hv = hex(ord(ch)).replace('0x', '')
-#         if len(hv) == 1:
-#             hv = '0'+hv
-#         lst.append(hv)
-    
-#     return reduce(lambda x,y:x+y, lst)
-
 # print out as a percentage
 def doPercent(i):
     return str(int(round(i*100)))
@@ -56,7 +42,10 @@ def doPercent(i):
 class ResponseError(IOError):
     pass
 
-def get_response(raiseError=False):
+def get_response():
+    # get a response string from the Nextion, if any pending
+    # relies on serial timeout setting to manage null and error cases
+    # a timeout with no characters received is a perfectly normal case
     s=""
     count=0
     while True:
@@ -67,34 +56,12 @@ def get_response(raiseError=False):
         else:
             count=0
         if count==3:
-            logger.debug("Nextion response received: "+to_hex_string(s))
-            return s
-        if not c:
-            if raiseError:
-                logger.warning("Unexpected serial input timeout without complete response. Input received: '"
-                    + to_hex_string(s) +"'"
-                    )
-                raise ResponseError(
-                    "Serial input timeout without complete response. Input received: '"
-                    + to_hex_string(s) +"'"
-                    )
-            else:
-                return s
-
-def wait_response(returnedCode):
-    # keep reading responses until the one you want is received.
-    r=get_response()
-    while not r:
-        logging.debug("wait_reponse waiting for any response")
-        r=get_response()
-    while ord(r[0]) != returnedCode:
-        logging.debug("wait_reponse got wrong response, retrying")
-        r=get_response()
-        while not r:
-            logging.debug("wait_reponse waiting for any response")
-            r=get_response()
-    logging.debug("wait_reponse got correct response")
-    return r
+            logger.debug("Nextion response received: " + to_hex_string(s))
+            return s # the normal exit for received responses
+        if not c: # we have a serial input timeout with no or an incomplete response
+            if s: # this is the incomplete case, which we don't expect
+                logger.warning("Nextion incomplete response received: " + to_hex_string(s))
+            return s # return both null string and incomplete ones.
 
 def do_screen_reset():
     # ensure that screen is properly reset
@@ -102,7 +69,6 @@ def do_screen_reset():
     while resetNotDone:
         resetTimeout=time()+2
         logger.debug("Sending screen reset")
-        print "Sending screen reset"
         ser.reset_input_buffer()
         ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
 
@@ -113,7 +79,7 @@ def do_screen_reset():
             c=""
             while c != '\xFF' and time()<resetTimeout:
                 c=ser.read() # wait for an FF
-                print "c: " + to_hex_string(c)
+                logger.debug("c: " + to_hex_string(c))
             if time()>=resetTimeout:
                 break
             c=ser.read()
@@ -123,21 +89,22 @@ def do_screen_reset():
                 break
             while c=='\xFF' and time()<resetTimeout: # swallow extra FFs
                 c=ser.read()
-                print "c: " + to_hex_string(c)
+                logger.debug("c: " + to_hex_string(c))
             if time()>=resetTimeout:
                 break
 
-            print "looking for sync, got: "+ to_hex_string(c)
+            logger.debug("looking for sync, got: "+ to_hex_string(c))
             if c != '\x88':
                 continue # not the response we're hoping for -> look for sync again
             #finally, look for the end of the reset confirmation
             s=""
             while s != '\xFF\xFF\xFF' and time()<resetTimeout:
                 s = s[-2:]+ser.read() # add a new character on the end
-                print "final sync search: "+to_hex_string(s)
+                logger.debug("final sync search: "+to_hex_string(s))
             # we arrive here either timed-out or success
             # so, if we've timed out, we need to do the whole thing again
             if time()>=resetTimeout:
+                logger.debug("Failed reset, retrying")
                 break
             else:
                 logger.info("Successful reset")
