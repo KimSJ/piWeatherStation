@@ -100,25 +100,41 @@ def do_screen_reset():
     # ensure that screen is properly reset
     resetNotDone=True
     while resetNotDone:
-        resetTimeout=time()+5
-        if DEBUG: print("Sending screen reset")
+        resetTimeout=time()+2
+        logger.debug("Sending screen reset")
+        print "Sending screen reset"
+        ser.reset_input_buffer()
         ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
 
         # pause needed before reset is complete
-        if DEBUG: print("waiting for reset response")
-        while resetTimeout<time():
-            # start by waiting for three \xFFs to ensure sync'd
-            s=""
-            while s != '\xFF\xFF\xFF' and time()<resetTimeout:
-                s = s[-2:]+ser.read() # add a new character on the end
+        logger.debug("waiting for reset response")
+        while time()<resetTimeout:
+            # start by waiting for string of \xFFs to ensure sync'd
+            c=""
+            while c != '\xFF' and time()<resetTimeout:
+                c=ser.read() # wait for an FF
+                print "c: " + to_hex_string(c)
             if time()>=resetTimeout:
                 break
-            if ser.read() != '\x88':
+            c=ser.read()
+            while c == "" and time()<resetTimeout: # wait for a char
+                c=ser.read()
+            if time()>=resetTimeout:
+                break
+            while c=='\xFF' and time()<resetTimeout: # swallow extra FFs
+                c=ser.read()
+                print "c: " + to_hex_string(c)
+            if time()>=resetTimeout:
+                break
+
+            print "looking for sync, got: "+ to_hex_string(c)
+            if c != '\x88':
                 continue # not the response we're hoping for -> look for sync again
             #finally, look for the end of the reset confirmation
             s=""
             while s != '\xFF\xFF\xFF' and time()<resetTimeout:
                 s = s[-2:]+ser.read() # add a new character on the end
+                print "final sync search: "+to_hex_string(s)
             # we arrive here either timed-out or success
             # so, if we've timed out, we need to do the whole thing again
             if time()>=resetTimeout:
