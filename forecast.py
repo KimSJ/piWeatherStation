@@ -17,11 +17,14 @@ logger.info("forecast.py started")
 try:
     from myurl import myURL
 except:
-    print("localisation data not found. You need to create myurl.py"
-        + " starting from the myurl.sample.py example")
+    e = ("localisation data not found. You need to create myurl.py"
+       + " starting from the myurl.sample.py example")
+    logger.error(e)
+    print(e)
     exit()
 
-DEBUG = True
+logger.info("URL configured")
+logger.debug("URL="+myURL)
 
 def to_hex_string(s):
     if len(s)==0:
@@ -64,15 +67,17 @@ def get_response(raiseError=False):
         else:
             count=0
         if count==3:
-            if DEBUG: print to_hex_string(s)
+            logger.debug("Nextion response received: "+to_hex_string(s))
             return s
         if not c:
             if raiseError:
+                logger.warning("Unexpected serial input timeout without complete response. Input received: '"
+                    + to_hex_string(s) +"'"
+                    )
                 raise ResponseError(
                     "Serial input timeout without complete response. Input received: '"
-                    + s +"'"
+                    + to_hex_string(s) +"'"
                     )
-                print "nothing more to read"
             else:
                 return s
 
@@ -80,11 +85,15 @@ def wait_response(returnedCode):
     # keep reading responses until the one you want is received.
     r=get_response()
     while not r:
+        logging.debug("wait_reponse waiting for any response")
         r=get_response()
     while ord(r[0]) != returnedCode:
+        logging.debug("wait_reponse got wrong response, retrying")
         r=get_response()
         while not r:
+            logging.debug("wait_reponse waiting for any response")
             r=get_response()
+    logging.debug("wait_reponse got correct response")
     return r
 
 ###### Main program #########
@@ -94,28 +103,32 @@ print "##############################\n"
 
 try:
     ser = serial.Serial('/dev/ttyUSB0', 115200)
+    logger.info("Using /dev/ttyUSB0")
     print "Using /dev/ttyUSB0"
 except serial.SerialException:
     try:
         ser = serial.Serial('/dev/serial0', 115200)
+        logger.info("Using /dev/serial0")
         print "Using /dev/serial0"
     except serial.SerialException:
         try:
             ser = serial.Serial('COM8', 115200)
+            logger.info("Using COM8")
             print "Using COM8"
         except serial.SerialException:
+                logger.error("Serial ort not found")
                 print("Serial port not found")
                 exit()
 ser.timeout=0.1
 
 # set up basic settings...
 # we can assume that sleep-on-idle is off at power-up
-if DEBUG: print("Writing reset")
+logger.info("Writing reset")
 ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
 # pause needed before reset is complete
-if DEBUG: print("waiting for reset response")
+logger.info("Waiting for reset response")
 r=wait_response(0x88)
-if DEBUG: print("got for reset response")
+logger.info("got for reset response")
 ser.write('sendxy=1\xFF\xFF\xFF') # turn on sending touch events
 
 idle_count=0 # counting roughly tenths of seconds until screen dim
