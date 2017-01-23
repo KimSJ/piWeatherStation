@@ -67,10 +67,10 @@ def do_screen_reset():
     # ensure that screen is properly reset
     resetNotDone=True
     while resetNotDone:
-        resetTimeout=time()+2
+        resetTimeout=time()+5
         logger.debug("Sending screen reset")
         ser.reset_input_buffer()
-        ser.write('rest\xFF\xFF\xFF') # set default (reset) state...
+        ser.write('\xFF\xFF\xFFrest\xFF\xFF\xFF') # set default (reset) state...
 
         # pause needed before reset is complete
         logger.debug("waiting for reset response")
