@@ -9,7 +9,7 @@ import random
 
 # intitalise logging
 import logging
-logging.basicConfig(filename='/home/pi/piWeatherStation/forecast.log', filemode = 'w', level=logging.DEBUG)
+logging.basicConfig(filename='/home/pi/piWeatherStation/forecast.log', filemode = 'w', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 logger.info("forecast.py started")
@@ -162,19 +162,18 @@ while True:
             )
 
 
+        hourly = forecast['hourly']['data']
+        timeNow = hourly[0]['time']
+
         print "summary: "+forecast['hourly']['summary']
         print("humidity: "
             + doPercent(forecast['currently']['humidity'])
             + "%")
-        #print forecast['hourly']['summary'].encode('ascii','ignore')
-        ser.write('g0.txt="Summary: '
+        ser.write('g0.txt="Summary at ' + datetime.fromtimestamp(int(timeNow)).strftime('%H:%M') + ': '
               + forecast['hourly']['summary'].encode('ascii','ignore')
               + " Current humidity: "
               + doPercent(forecast['currently']['humidity'])
               + "%" + '"\xFF\xFF\xFF')
-
-        hourly = forecast['hourly']['data']
-        timeNow = hourly[0]['time']
 
         rainExpected = -1
         for hour in hourly:
@@ -197,7 +196,7 @@ while True:
         else:
             ser.write('t1.txt=">48"\xFF\xFF\xFF')
             ser.write('t2.txt="no rain is likely"\xFF\xFF\xFF')
-            print "No rain expected in next "+str(offsetHours+1)+" hours"
+            print "No rain expected in next "+str(offsetHours)+" hours"
 
 
         ################# Now populate the graph ###################
