@@ -1,6 +1,7 @@
 # my additions
 forecast.json*
 myurl.py
+test_of_sleeping.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
